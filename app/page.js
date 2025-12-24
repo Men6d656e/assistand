@@ -22,7 +22,7 @@ export default function Home() {
           className="px-4 py-3 w-full rounded-lg bg-gray-700/80 border border-gray-600 text-white"
           placeholder="e.g. Akash"
           value={username}
-          onChange={(e) => setUsername(e.target.validity)}
+          onChange={(e) => setUsername(e.target.value)}
         />
         <button
           onClick={handleJoin}
