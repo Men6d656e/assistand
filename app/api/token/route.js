@@ -21,10 +21,13 @@ export async function POST(request) {
     };
 
     await serverClient.upsertUsers([newUser]);
+    const now = Math.floor(Date.now() / 1000);
+
     const validity = 60 * 60 * 24;
     const token = serverClient.generateUserToken({
       user_id: userId,
       validity_in_seconds: validity,
+      iat: now - 60,
     });
 
     return Response.json({ token });

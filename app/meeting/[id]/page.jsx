@@ -10,7 +10,7 @@ const MeetingPage = () => {
   const params = useParams();
   const router = useRouter();
 
-  const callId = params.meetingId;
+  const callId = params.id;
   const name = searchParams.get("name") || "anonymous";
 
   const [user, setUser] = useState(null);
@@ -41,7 +41,7 @@ const MeetingPage = () => {
         else setError("No token returned");
       })
       .catch((error) => setError(error.message));
-  }, []);
+  }, [user]);
 
   if (error) {
     return (

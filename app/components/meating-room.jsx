@@ -1,7 +1,13 @@
 "use client";
 
-import { StreamCall, useStreamVideoClient } from "@stream-io/video-react-sdk";
+import {
+  CallControls,
+  SpeakerLayout,
+  StreamCall,
+  useStreamVideoClient,
+} from "@stream-io/video-react-sdk";
 import React, { useEffect, useRef, useState } from "react";
+import "@stream-io/video-react-sdk/dist/css/styles.css";
 
 const MeetingRoom = ({ callId, onLeave, userId }) => {
   const client = useStreamVideoClient();
@@ -12,7 +18,7 @@ const MeetingRoom = ({ callId, onLeave, userId }) => {
   const joinedRef = useRef(false);
   const leavingRef = useRef(false);
 
-  const callType = "defaulat";
+  const callType = "default";
 
   useEffect(() => {
     if (!client || joinedRef.current) return;
@@ -57,22 +63,50 @@ const MeetingRoom = ({ callId, onLeave, userId }) => {
   }
 
   if (!call) {
-    <div className="flex items-center justify-center min-h-screen text-white">
-      <div className="animate-spin h-16 w-16 border-t-4 border-blue-500 rounded-full">
-        <p className="mt-4 text-lg">Loading meeting...</p>
+    return (
+      <div className="flex items-center justify-center min-h-screen text-white">
+        <div className="animate-spin h-16 w-16 border-t-4 border-blue-500 rounded-full">
+          <p className="mt-4 text-lg">Loading meeting...</p>
+        </div>
       </div>
-    </div>;
+    );
   }
+
+  const handleLeaveClick = async () => {
+    if (leavingRef.current) {
+      onLeave?.();
+      return;
+    }
+    leavingRef.current = true;
+
+    try {
+      if (call) {
+        await call.stopClosedCaptions().catch(() => {});
+        await call.leave().catch(() => {});
+      }
+    } catch (error) {
+      console.error("Error leaving call:", error);
+    } finally {
+      onLeave?.();
+    }
+  };
 
   return (
     <StreamCall call={call}>
       <div className="min-h-screen bg-linear-to-br from-gray-900 via-gray-800 to-gray-900 text-white container mx-auto px-4 py-6">
         <div className="grid grid-cols-1 lg:grid-cols-[1fr-420px] gap-6 h-screen">
-            <div className="flex flex-col gap-4">
-                {/* Speaker layout */}
-                {/* Call Controlls */}
+          <div className="flex flex-col gap-4">
+            {/* Speaker layout */}
+            <div className="flex-1 rounded-xl bg-gray-800 border border-gray-700 overflow-hidden shadow-2xl">
+              <SpeakerLayout />
             </div>
-            {/* Transcriptions */}
+            {/* Call Controlls */}
+            <div className="flex justify-center pb-4 bg-gray-800 rounded-full px-8 py-4 border border-gray-700 shadow-xl w-fit mx-auto">
+              <CallControls onLeave={handleLeaveClick} />
+            </div>
+          </div>
+          {/* Transcriptions */}
+          <div className="bg-gray-800 rounded-2xl border border-gray-700 overflow-hidden shadow-2xl"></div>
         </div>
       </div>
     </StreamCall>
